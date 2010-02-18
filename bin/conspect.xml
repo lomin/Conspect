@@ -1,0 +1,36 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+	<aop:config>
+		<aop:pointcut id="componentCall"
+			expression="!within(de.itagile.conspect.ConspectContract+) and 
+				execution(* de.itagile.conspect.components.*.*(..))" />
+		<aop:advisor advice-ref="conspect" pointcut-ref="componentCall" />
+	</aop:config>
+
+	<bean id="conspect" class="de.itagile.conspect.Conspect">
+		<property name="parameterContracts">
+			<list>
+				<ref bean="testParameterContract" />
+			</list>
+		</property>
+		<property name="componentContracts">
+			<list>
+				<ref bean="testComponentContract" />
+			</list>
+		</property>
+		<property name="exceptionWrapper">
+			<list>
+				<ref bean="testExceptionWrapper" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="testComponent" class="de.itagile.conspect.components.TestComponentDefault" />
+	<bean id="testParameterContract" class="de.itagile.conspect.components.TestParameterContract" />
+	<bean id="testComponentContract" class="de.itagile.conspect.components.TestComponentContract" />
+	<bean id="testExceptionWrapper" class="de.itagile.conspect.components.TestExceptionWrapper" />
+</beans>
