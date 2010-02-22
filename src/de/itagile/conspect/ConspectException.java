@@ -1,5 +1,9 @@
 package de.itagile.conspect;
 
+/**
+ * A simple default exception for exception wrapping. Marked by the {@link ConspectExceptionMarker} to work
+ * together with the {@link ConspectExitCondition}.
+ */
 public class ConspectException extends RuntimeException implements ConspectExceptionMarker
 {
   public ConspectException(String message)

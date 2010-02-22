@@ -8,6 +8,11 @@ public class ConspectParameterContractHandler implements ParameterContractHandle
   private List<String> messages = new ArrayList<String>();
   private ExceptionFactory exceptionFactory;
 
+  /**
+   * Instantiates ConspectParameterContractHandler with default {@link ExceptionFactory}.
+   * 
+   * @see ConspectExceptionFactory
+   */
   public ConspectParameterContractHandler()
   {
     exceptionFactory = new ConspectExceptionFactory();

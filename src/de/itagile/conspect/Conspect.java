@@ -7,6 +7,69 @@ import java.util.List;
 import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.aop.ThrowsAdvice;
 
+/**
+ * Contract and exception handling aspect for component-based Spring projects.<p>
+ * 
+ * By including this aspect in a component-based Spring project, it is possible to check parameter 
+ * and component contracts at runtime. This aspect also includes support for exception wrapping at
+ * component boundaries.<p>
+ * 
+ * The Conspect class delegates all component calls, which have been specified by the pointcut expression
+ * for this aspect, to corresponding contracts. The parameters of a call are checked against all 
+ * parameter contracts, the call itself is checked against all component contracts.<p>
+ * 
+ * By default, parameter contracts are handled by the {@link ConspectParameterContractHandler}. It collects 
+ * all results of broken parameter contracts and generates an exception, which is created by an 
+ * implementation of the {@link ExceptionFactory}.<p>
+ *
+ * A component contract must implement {@link ComponentContract} <strong>and</strong> the component interface 
+ * it is applicable for. The component contract is supposed to throw an exception, if the contract is broken.<p>
+ * 
+ * As long as the {@link ExitCondition} is not fulfilled and an exception wrapper for a component exists, 
+ * all exceptions within the component are wrapped as specified by the wrapper.<p>
+ * 
+ * <strong>Example usage:</strong><p>
+ * <pre>
+ * {@code
+ * <beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+    <aop:config>
+        <aop:pointcut id="componentCall"
+            expression="!within(de.itagile.conspect.ConspectContract+) and 
+                execution(* de.itagile.conspect.components.*.*(..))" />
+        <aop:advisor advice-ref="conspect" pointcut-ref="componentCall" />
+    </aop:config>
+
+    <bean id="conspect" class="de.itagile.conspect.Conspect">
+        <property name="parameterContracts">
+            <list>
+                <ref bean="testParameterContract" />
+            </list>
+        </property>
+        <property name="componentContracts">
+            <list>
+                <ref bean="testComponentContract" />
+            </list>
+        </property>
+        <property name="exceptionWrapper">
+            <list>
+                <ref bean="testExceptionWrapper" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="testComponent" class="de.itagile.conspect.components.TestComponentDefault" />
+    <bean id="testParameterContract" class="de.itagile.conspect.components.TestParameterContract" />
+    <bean id="testComponentContract" class="de.itagile.conspect.components.TestComponentContract" />
+    <bean id="testExceptionWrapper" class="de.itagile.conspect.components.TestExceptionWrapper" />
+</beans>
+ * }
+ * </pre>
+ */
 public class Conspect implements MethodBeforeAdvice, ThrowsAdvice
 {
   private ParameterContractHandler parameterContractHandler;
@@ -15,6 +78,12 @@ public class Conspect implements MethodBeforeAdvice, ThrowsAdvice
   private List<ComponentContract> componentContracts = new ArrayList<ComponentContract>();
   private List<ExceptionWrapper> exceptionWrapper = new ArrayList<ExceptionWrapper>();
 
+  /**
+   * Instantiates Conspect with defaults.
+   * 
+   * @see ConspectParameterContractHandler
+   * @see ConspectExitCondition
+   */
   public Conspect()
   {
     this.parameterContractHandler = new ConspectParameterContractHandler();
