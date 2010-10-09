@@ -1,10 +1,16 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+
 sourceCompatibility=1.6
 targetCompatibility=1.6
+
+version='1.0.0'
+
 repositories {
 	mavenCentral()
 }
+
+defaultTasks 'clean', 'build'
 
 dependencies {
 	compile group: 'org.springframework', name: 'spring', version: '2.0.8'
