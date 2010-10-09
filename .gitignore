@@ -1,5 +1,7 @@
 *.swp
 bin
+build
 .settings
 .project
-.classpath 
+.classpath
+.gradle
